@@ -24,7 +24,6 @@ headers = {'Authorization': f"Bearer {MY_API_KEY}"}
 params={'term':searchTerm, 'location':searchLocation}
 
 resp = requests.get(url, params=params, headers=headers)
-print (resp)
 parsed = json.loads(resp.text)
 
 thebusinesses = parsed["businesses"]
@@ -59,10 +58,6 @@ googleSearch = parsed["results"]
 googleBizName = googleSearch[0]["name"]
 googleBizID = googleSearch[0]["place_id"]
 
-print ("Google")
-print (googleBizName)
-print (googleBizID)
-
 # Get Google Maps reviews, and add the sentiment score for each to our masterList
 url = 'https://maps.googleapis.com/maps/api/place/details/json?place_id=' + googleBizID + '&fields=name,rating,reviews,formatted_address&key=' + googleAPIKey
 resp = requests.get(url)
@@ -79,6 +74,19 @@ for theGoogleReview in googleReviews:
     masterList.append(document.sentiment.overall)
 
 
-# Get the final score by averaging the masterList. The final FLAVA rating is then put into 4 ranges: "Hated", "Meh", "Liked", or "Loved" - the algorithm for this is in a PHP script.
+# The final FLAVA rating is then put into 4 ranges: "Hated", "Meh", "Liked", or "Loved"
+
 theFinalScore = round(sum(masterList) / len(masterList),2)
 print ("Final score: " + str(theFinalScore))
+
+if theFinalScore > 2 and theFinalScore < 10:
+    print ("LIKED - you'll dig it.")
+
+if theFinalScore > 10:
+    print ("LOVED - you'll love this place.")
+
+if theFinalScore < 2 and theFinalScore > -6:
+    print ("MEH - it's alright.")
+
+if theFinalScore < -6:
+    print ("HATED - definitely not a favorite.")
